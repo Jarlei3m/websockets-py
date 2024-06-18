@@ -7,7 +7,7 @@ class Pix:
 
   def create_payment(self):
     # payment mock creation
-    bank_payment_id = uuid.uuid4()
+    bank_payment_id = str(uuid.uuid4())
 
     # qr code mock creation
     hash_payment = f'hash_payment_{bank_payment_id}'
