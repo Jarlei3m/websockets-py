@@ -40,6 +40,22 @@ def get_image(file_name):
 
 @app.route('/payments/pix/confirmation', methods=['POST'])
 def pix_confirmation():
+  data = request.get_json()
+
+  if "bank_payment_id" not in data and 'value' not in data:
+    return jsonify({"message": "Invalid payment data"}), 400
+
+  payment = Payment.query.filter_by(bank_payment_id=data['bank_payment_id']).first()
+
+  if not payment or payment.paid:
+    return jsonify({"messager": "The payment not found"}), 404
+
+  if data.get('value') != payment.value:
+    return jsonify({"message": "Invalid payment data"}), 400
+  
+  payment.paid = True
+  db.session.commit()
+
   return jsonify({"message": "The payment has been confirmed"})
 
 @app.route('/payments/pix/<int:payment_id>', methods=['GET'])
@@ -51,7 +67,7 @@ def payment_pix_page(payment_id):
 # websockets
 @socketio.on('connect')
 def handle_connect():
-  print("Client connect to the server")
+  print("Client connected to the server")
 
 if __name__ == "__main__":
   socketio.run(app, debug=True)
